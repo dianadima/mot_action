@@ -1,4 +1,5 @@
 function [] = plot_varpart(respath1, respath2)
+%plot cross-validated variance partitioning results
 
 figure
 
@@ -72,6 +73,8 @@ end
 if p(3)<0.01
     line([1 3],[xp+xp/10 xp+xp/10], 'color','k')
     text(1.95, xp+xp/100*12,'*','FontSize',12)
+end
+
 end
 
 end

@@ -12,13 +12,6 @@ function [] = sim_plotrsa(rsacorr,pval,fixedcorr,nc,modelnames,corrtype,color)
 
 alpha = 0.005; %threshold p-values
 
-figure('color','w')
-f = gcf;
-f.Units = 'centimeters';
-f.Position = [5 5 18 12];
-f.PaperUnits = 'centimeters';
-f.PaperPosition = [0 0 18 12];
-
 nmod = numel(modelnames);
 
 hold on
@@ -37,11 +30,10 @@ plot(1:nmod,fixedcorr,'o','LineWidth',1,'MarkerEdgeColor','k','MarkerFaceColor',
 set(gca,'FontSize',18)
 for m = 1:nmod
     if pval(m)<=alpha
-        text(m-0.05, 0.38, '*' ,'FontSize',14)
-        %text(m-0.05, max(max([rsacorr;fixedcorr]))+0.02, '*' ,'FontSize',14)
+        text(m-0.05, 0.38, '*' ,'FontSize',14) %note: text position is hard-coded
     end
 end
-title('Behavior-model correlations','FontWeight','normal')
+
 box off
 
 
