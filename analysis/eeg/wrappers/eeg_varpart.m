@@ -6,13 +6,11 @@ function [] = eeg_varpart(cfg)
 try nwin = cfg.nwin; catch, nwin = 601; cfg.nwin = nwin; end
 try outpath = cfg.outpath; catch, outpath = pwd;cfg.outpath = outpath; end 
 rsapath = fullfile(outpath,'RSA');
-try rdmfile = cfg.rdmfile; catch, rdmfile = fullfile(rsapath,'rsa_euclid.mat'); end
-try modfile = cfg.modfile; catch, modfile = fullfile(rsapath,'models_selected.mat'); cfg.modfile = modfile; end
+try rdmfile = cfg.rdmfile; catch, rdmfile = fullfile(rsapath,'rsa.mat'); end
+try modfile = cfg.modfile; catch, modfile = fullfile(rsapath,'models.mat'); cfg.modfile = modfile; end
 try vpfile = cfg.vpfile; catch, vpfile = fullfile(rsapath, 'rsa_varpart.mat'); end
+try type = cfg.type; catch, type = 'cv'; end %cross-validated (cv) vs fixed-effects (avg)
 
-
-%load files
-load(rdmfile,'avgrdm'); rdm = avgrdm;
 load(modfile,'models','modelnames')
 
 %group models and select
@@ -22,19 +20,33 @@ mod3 = {'FC8','Environment'};
 mod = {mod1,mod2,mod3};
 sel_mod = sim_prepmodels(mod,models,modelnames);
 
-%run variance partitioning
-rsq_adj = nan(7,nwin);
-rsq_tot = nan(1,nwin);
-for w = 1:nwin
-    vp = rdm_varpart(rdm(:,w)',sel_mod{1},sel_mod{2},sel_mod{3});
-    rsq_adj(:,w) = vp.rsq_adj;
-    rsq_tot(w) = vp.total_rsq;
-end
+
+%load files
+if strcmp(type,'avg')
     
-varpart.modelnames = {'Semantic','Social','Visual'};
-varpart.rsq_adj = rsq_adj;
-varpart.rsq_tot = rsq_tot;
-varpart.comb_labels = vp.comb_labels;
+    load(rdmfile,'avgrdm'); 
+    rdm = avgrdm;
+    
+    rsq_adj = nan(7,nwin);
+    rsq_tot = nan(1,nwin);
+    for w = 1:nwin
+        vp = rdm_varpart(rdm(:,w)',sel_mod{1},sel_mod{2},sel_mod{3});
+        rsq_adj(:,w) = vp.rsq_adj;
+        rsq_tot(w) = vp.total_rsq;
+    end
+    
+    varpart.modelnames = {'Semantic','Social','Visual'};
+    varpart.rsq_adj = rsq_adj;
+    varpart.rsq_tot = rsq_tot;
+    varpart.comb_labels = vp.comb_labels;
+    
+else
+    
+    load(rdmfile,'subrdm'); 
+    
+    varpart = eeg_varpartcv(subrdm,sel_mod{1},sel_mod{2},sel_mod{3});
+
+end
 
 save(vpfile,'varpart');
 

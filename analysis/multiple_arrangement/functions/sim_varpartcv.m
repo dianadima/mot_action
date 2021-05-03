@@ -7,6 +7,12 @@ function [varpart] = sim_varpartcv(rdm,model1,model2,model3,exp)
 %         model1, model2, model3: predictors (Nmodel x Npairs); model3 can be empty
 %         exp, 1 or 2 (for pairwise vs subjectwise CV)
 %
+% output: varpart, structure containing
+%                rsq_adj, adjusted R-squared for each combination of models
+%                comb_labels, order of model combinations (i.e. abc, ab, bc, ac, a, b, c)
+%                total_rsq, total variance explained by the models (adjusted R-squared)
+%                noiseceil, upper and lower bounds of noise ceiling (cf. Nili et al 2014)
+%
 % DC Dima 2021 (diana.c.dima@gmail.com)
 
 nsub = size(rdm,1);

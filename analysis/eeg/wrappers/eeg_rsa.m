@@ -20,6 +20,7 @@ try nperm = cfg.nperm; catch, nperm = 5000; cfg.nperm = nperm; end
 
 try load(modfile,'models','modelnames');
 catch
+    fprintf('\nNo model file found. Creating models... \n')
     if isfield(cfg,'stimfile')
         stimfile = cfg.stimfile;
         [models, modelnames] = eeg_rsamodels(stimfile, modfile);
@@ -41,6 +42,7 @@ for isub = 1:nsub
     %get subject specific paths and filenames
     sub = sprintf('%02.f',isub);
     suboutpath = fullfile(outpath, sub);
+    fprintf('Running participant %d...\n',isub)
     
     switch method
         

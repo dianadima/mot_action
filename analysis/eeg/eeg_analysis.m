@@ -40,7 +40,7 @@ cfg = [];
 cfg.stimfile = stimfile; %only include this to create the RSA models from scratch - else they will be loaded from file
 cfg.outpath = outpath;
 cfg.method = 'euclid'; % or 'euclid' for eucliden distances
-cfg.type = 'spearman';
+cfg.type = 'kendall';
 cfg.decoding_file = fullfile(outpath,'pairwise_decoding_accuracy_pseudo.mat'); %file storing pairwise decoding accuracies
 
 eeg_rsa(cfg);
