@@ -2,11 +2,7 @@ data/
 results/
 analysis/utils/dependencies/
 analysis/utils/colormaps/
-.asv
-*/.asv
-*/*/.asv
-*/*/*/.asv
+*.asv
+**/*.asv
 .DS_Store
-*/.DS_Store
-*/*/.DS_Store
-*/*/*/.DS_Store
+**/.DS_Store
