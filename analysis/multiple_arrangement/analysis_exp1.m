@@ -20,7 +20,7 @@ savefile = fullfile(savepath,'rdm.mat'); %this will contain the combined RDM
 
 %files for RSA analysis
 rsafile = fullfile(savepath,'rsa.mat');                  %RSA results
-vptfile = fullfile(savepath,'rsa_varpart_cv_pairs.mat'); %variance partitioning results
+vptfile = fullfile(savepath,'rsa_varpart.mat');          %variance partitioning results
 modfile = fullfile(savepath,'models.mat');               %RSA models
 vidfile = fullfile(datapath,'video_features.mat');       %file containing video ratings & stimulus order info for generating RSA models
 
