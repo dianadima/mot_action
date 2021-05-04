@@ -129,6 +129,7 @@ for p = 1:nperm
         %there is a minimum of 2 ratings per pair
         idx = randperm(rdmsum(ip),floor(rdmsum(ip)/2));
         tmp = rdmvec(:,ip); %select the pair
+        tmp = tmp(~isnan(tmp));
         rdm1(ip) = nanmean(tmp(idx),1);
         tmp(idx) = [];
         rdm2(ip) = nanmean(tmp,1);
