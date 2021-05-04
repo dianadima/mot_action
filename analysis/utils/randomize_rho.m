@@ -60,9 +60,12 @@ else
         end
         
         pvalue = nan(size(obs_stat));
+        pvalue_corr = nan(size(obs_stat));
+        randmax = squeeze(max(max(rand_stat,[],3),[],2));
         for i = 1:size(obs_stat,1)
             for ii = 1:size(obs_stat,2)
                 pvalue(i,ii) = (length(find(rand_stat(:,i,ii)>=obs_stat(i,ii)))+1)/(num_iterations+1);
+                pvalue_corr(i,ii) = (sum(randmax>=obs_stat(i,ii))+1)/(num_iterations+1);
             end
         end
         
