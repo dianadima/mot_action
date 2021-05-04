@@ -7,9 +7,9 @@ m = cell(5,2); %read ratings in cell array
 for i = 1:2
     
     if i==1
-        load(fullfile(datapath,'videoset_152.mat'));
+        load(fullfile(datapath,'videoset_152.mat'),'ratingsZ','transitivity');
     else
-        load(fullfile(datapath,'videoset_65.mat'));
+        load(fullfile(datapath,'videoset_65.mat'),'ratingsZ','transitivity');
     end
     
     %read and reorder ratings
@@ -28,10 +28,12 @@ for i = 1:2
 end
 
 figure
-rp = rm_raincloud(m,colours,1);
-f=get(gca,'Children');
+rm_raincloud(m,colours,1)
+
+f = get(gca,'Children');
 legend([f(4),f(2)],'Exp 1','Exp 2')
 legend boxoff
+
 box off
 metrics = fliplr(metrics);
 yticklabels(metrics)
