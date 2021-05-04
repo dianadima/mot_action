@@ -18,7 +18,7 @@ sel_mod = sim_prepmodels(mod,models,modelnames);
 
 %run cross-validated variance partitioning
 varpart = sim_varpartcv(rdm,sel_mod{1},sel_mod{2},sel_mod{3},exp);
-varpart.modelnames = {'Semantic','Social','Visual'};
+varpart.modelnames = {'Action','Social','Visual'};
 
 save(vpfile,'varpart');
 

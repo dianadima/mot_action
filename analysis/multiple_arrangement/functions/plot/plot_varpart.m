@@ -7,24 +7,16 @@ for i = 1:2
     
     if i==1
         load(fullfile(respath1,'rsa_varpart.mat'),'varpart')
-        load(fullfile(respath1,'rdm.mat'),'nc')
     else
         load(fullfile(respath2,'rsa_varpart.mat'),'varpart')
-        load(fullfile(respath2,'rdm.mat'),'nc')
     end
     
 vp = varpart.rsq_adj;
 uv = vp([7 6 5],:); %reorder - get unique variance for models
 labels = {'Visual','Social','Action'};
 
-%noise ceilings calculated using different methods
-if i==1
-    ncK = (nc.splithalfKpairs).^2;
-else
-    ncK = (nc.splithalfK).^2;
-end
-
-%noise ceiling range - mean+/-SD
+%true correlation mean+/- SD
+ncK = varpart.true_rsq;
 nc1 = mean(ncK)-std(ncK);
 nc2 = mean(ncK)+std(ncK);
 
@@ -49,7 +41,11 @@ rectangle('Position',[0.6 nc1 4 nc2-nc1],'FaceColor',[0.85 0.85 0.85], 'EdgeColo
 
 cfg = []; 
 cfg.scatter = 0; 
-cfg.ylabel = 'Kendall`s tau-A^2';
+if i==1
+    cfg.ylabel = 'Kendall''s {\tau}_A^2';
+else
+    cfg.ylabel = ' ';
+end
 cfg.color = {[0.2 0.6 0.8],[0.6 0.6 0.8],[0.3 0.7 0.5]};
 cfg.mrksize = 60;
 
