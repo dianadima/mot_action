@@ -17,6 +17,7 @@ function [ ] = plot_time_results( accuracy, errorbar, varargin )
 %       'xlabel', default 'Time (s)'
 %       'legend' - specify string corresponding to the accuracy plotted. If function is called in a loop, 
 %                  legends will be appended, such that the final plot will have the complete legend of plotted accuracies. Default, [] (none). (Semidocumented function DynamicLegend used here)    
+%       'vline', default false, mark onsets with vertical lines
 %
 % DC Dima 2018 (diana.c.dima@gmail.com)
 
@@ -36,6 +37,7 @@ addParameter(p, 'linestyle', '-');
 addParameter(p, 'ylabel', 'Accuracy (%)');
 addParameter(p, 'xlabel', 'Time (s)');
 addParameter(p, 'legend', []);
+addParameter(p, 'vline', false);
 parse(p, varargin{:});
 
 pr = p.Results;
@@ -91,7 +93,9 @@ if ~isempty(pr.signif) && sum(pr.signif)~=0
     if length(pr.signif)==length(time) && max(pr.signif)==1, pr.signif = time(logical(pr.signif)); end %logical indexing case
     l3 = plot(pr.signif, pr.signif_ylocation, 'Marker', 's', 'MarkerSize', pr.signif_marker_size, 'MarkerFaceColor', pr.color,'MarkerEdgeColor', pr.color);
     for j = 1:length(l3), hasbehavior(l3(j), 'legend', false); end; hold on;
-    l4 = line([pr.signif(1,1) pr.signif(1,1)], pr.ylim, 'color', pr.color); hold on; hasbehavior(l4, 'legend', false); hold on;
+    if pr.vline
+     l4 = line([pr.signif(1,1) pr.signif(1,1)], pr.ylim, 'color', pr.color); hasbehavior(l4, 'legend', false); hold on;
+    end
 end
 
 if ~isempty(pr.ylim), ylim(pr.ylim); end

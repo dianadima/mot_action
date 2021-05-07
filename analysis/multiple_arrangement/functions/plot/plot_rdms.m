@@ -28,7 +28,7 @@ for i = 1:2
         c = colorbar;
         c.Label.String = 'Euclidean distance';
     end
-  
+    
 end
 
 

@@ -1,6 +1,6 @@
 function [pvalue, obs_stat, rand_stat, pvalue_corr] = randomize_rho(rho, varargin)
 % Sign test on correlations.
-% Inputs: correlation (length is number of observations/subjects).
+% Inputs: correlation (Nsub x 1, Nsub x Nfeat, Nsub x Nfeat x Nfeat, or Nsub x Nfeat x Nfeat x Nfeat).
 % Name-value optional inputs: 'num_iterations' (default 5000) - number of randomizations;
 %
 % Outputs: p-value (one-tailed: number of randomizations exceeding observed statistic).
