@@ -12,7 +12,7 @@ videofile2 = fullfile(basepath,'ratings2','videoset_307.mat');
 videopath1 = fullfile(stimpath, 'initial_curation','set1');
 videopath2 = fullfile(stimpath, 'initial_curation','set2');
 
-savefile = fullfile(basepath,'videoset_full.mat');
+savefile = fullfile(basepath,'videoset_full2.mat');
 
 load(videofile1); 
 videolist1 = videolist_renamed; 
@@ -58,28 +58,38 @@ categories = categories2;
 categories_idx = cell(1,ncat);
 categories1 = cellfun(@(x) strrep(x,' ', ''), categories1, 'UniformOutput',false); %remove spaces
 
+%concatenate the two sets, making sure to keep same categories together
+%order will be based on categories2 (alphabetical & complete)
+
 cidx = 0;
 for c = 1:ncat
     
-    c1 = find(contains(categories1,categories2{c}));
+    c1 = find(contains(categories1,categories2{c})); %find corresponding category
     c2 = c;
     categories_idx{c} = [];
     
     if ~isempty(c1) %some missing categories in 1st set
-        cat_idx1 = categories_idx1{c1};
-        frameidx = cidx+1:cidx+length(cat_idx1);
-        categories_idx{c} = frameidx;
-        framearray_mid(frameidx) = framearray1(cat_idx1);
+        
+        cat_idx1 = categories_idx1{c1};                                            %video indices for category
+        frameidx = cidx+1:cidx+length(cat_idx1);                                   %new index, based on continuous counter across categories: we're concatenating 2 sets within each category
+        categories_idx{c} = frameidx;                                              %store this index: this is how videos are indexed from now on
+        
+        %assign all variables to the right place in the concatenated sets
+        framearray_mid(frameidx) = framearray1(cat_idx1);                          
         videolist(frameidx) = videolist1(cat_idx1);
         fullvideolist(frameidx) = deal(fullfile(videopath1,videolist1(cat_idx1)));
         env(frameidx) = env1(cat_idx1);
         num_agents(frameidx) = num_agents1(cat_idx1);
         watermark(frameidx) = watermark1(cat_idx1);
         ratingsZ(:,frameidx,1:nrat1) = ratingsZ1(:,cat_idx1,:);
+        
+        %increment counter to prepare for next category
         cidx = cidx+length(cat_idx1);
+   
     end
     
-    cat_idx2 = categories_idx2{c2};
+    %same procedure for set 2, but increment the counter since we have more videos within a single category
+    cat_idx2 = categories_idx2{c2};                                                
     frameidx = cidx+1:cidx+length(cat_idx2);
     categories_idx{c} = [categories_idx{c} frameidx];
     framearray_mid(frameidx) = framearray2(cat_idx2);
