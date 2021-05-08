@@ -32,6 +32,7 @@ for i = 1:2
     
     [~,~,idx] = intersect(model_order,modelnames,'stable');
     mcorrK = mcorrK(idx,idx);
+    modelnames = modelnames(idx);
     
     %name formatting
     modelnames{1} = 'Pixel value';
