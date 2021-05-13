@@ -34,6 +34,7 @@ comb{6} = model2;
 comb{7} = model3;
 
 ncomb = length(comb);
+vif = nan(nit,size(comb{1},2));
 
 %loop
 rsq_mat = nan(ncomb,nit);
@@ -82,6 +83,13 @@ for it = 1:nit
         
         rsq_mat(icomb,it) = (rankCorr_Kendall_taua(rpred,rdm2))^2; %save t-a squared
         
+        %variance inflation factor
+        if icomb==1
+            R0 = corrcoef(pred);
+            vif(it,:) = diag(inv(R0))';
+        end
+
+        
     end
 end
 
@@ -105,6 +113,7 @@ varpart.rsq_adj = var_mat;
 varpart.total_rsq = rsq_mat(1,:);
 varpart.comb_labels = comb_labels;
 varpart.true_rsq = truecorrsq;
+varpart.vif = vif;
 
 
 
