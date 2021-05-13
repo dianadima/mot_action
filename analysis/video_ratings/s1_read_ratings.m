@@ -13,7 +13,7 @@ datapath = fullfile(basepath, 'data','video_ratings','ratings2');
 stimpath = '/Users/dianadima/OneDrive - Johns Hopkins/Desktop/MomentsInTime/mot_stimuli/initial_curation/set2/StimuliOrig/';
 savepath = '/Users/dianadima/OneDrive - Johns Hopkins/Desktop/MomentsInTime/mot_action/results/video_ratings/ratings2';
 
-savefile = 'videoresponses2.mat'; %filename to svae
+savefile = 'videoresponses.mat'; %filename to svae
 loadile = 'Batch'; %preffix for raw data files
 nfiles = 26; %number of raw data files
 fidx = 1; %start from file #
