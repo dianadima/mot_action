@@ -1,4 +1,4 @@
-function [ratings,sub_to_exclude] = readdata_ratings(filepath, stimpath, nsub_idx, ratings, sub_to_exclude)
+function [ratings,sub_to_exclude] = readdata_ratings(filepath, stimpath, nsub_idx, ratings, sub_to_exclude, videolist)
 
 rating_types = {'social','valence','arousal','action'};
 
