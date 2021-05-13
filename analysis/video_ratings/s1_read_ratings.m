@@ -10,10 +10,10 @@ clear
 basepath = fileparts(fileparts(pwd));
 
 datapath = fullfile(basepath, 'data','video_ratings','ratings2');
-stimpath = fullfile(basepath, 'stimuli');
-savepath = fullfile(basepath, 'analysis', 'results');
+stimpath = '/Users/dianadima/OneDrive - Johns Hopkins/Desktop/MomentsInTime/mot_stimuli/initial_curation/set2/StimuliOrig/';
+savepath = '/Users/dianadima/OneDrive - Johns Hopkins/Desktop/MomentsInTime/mot_action/results/video_ratings/ratings2';
 
-savefile = 'videoresponses.mat'; %filename to svae
+savefile = 'videoresponses2.mat'; %filename to svae
 loadile = 'Batch'; %preffix for raw data files
 nfiles = 26; %number of raw data files
 fidx = 1; %start from file #
@@ -33,12 +33,11 @@ for f = fidx:nfiles %csv files
     
     filename = sprintf('Batch%d.csv',f);
     filepath = fullfile(datapath,filename);
-    nsub = size(data,1);
     
     if f==1 %create results variables for first file
    
-        sub_to_exclude = zeros(1,nsub); %index of subjects to remove based on QC
-        ratings = nan(4,nvid,nsub);
+        sub_to_exclude = 0; %index of subjects to remove based on QC
+        ratings = nan(4,nvid,1);
         nsub_idx = 0;
         
     else %append resuilts to existing ones
@@ -48,12 +47,9 @@ for f = fidx:nfiles %csv files
         % for combining batches
         nsub_idx = size(ratings,3); %these subjects will be added to the matrix with this starting point
         
-        ratings(:,:,nsub_idx+1:nsub_idx+nsub) = NaN;
-        sub_to_exclude(nsub_idx:nsub_idx+nsub) = NaN;
-        
     end
     
-    [ratings, sub_to_exclude] = readdata_ratings(filepath, stimpath, nsub_idx, ratings, sub_to_exclude);
+    [ratings, sub_to_exclude] = readdata_ratings(filepath, stimpath, nsub_idx, ratings, sub_to_exclude, videolist);
     
     %save results
     if ~exist(fullfile(savepath,savefile),'file')
