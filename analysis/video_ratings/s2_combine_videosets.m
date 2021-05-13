@@ -12,7 +12,7 @@ videofile2 = fullfile(basepath,'ratings2','videoset_307.mat');
 videopath1 = fullfile(stimpath, 'initial_curation','set1');
 videopath2 = fullfile(stimpath, 'initial_curation','set2');
 
-savefile = fullfile(basepath,'videoset_full2.mat');
+savefile = fullfile(basepath,'videoset_full.mat');
 
 load(videofile1); 
 videolist1 = videolist_renamed; 
@@ -62,6 +62,7 @@ categories1 = cellfun(@(x) strrep(x,' ', ''), categories1, 'UniformOutput',false
 %order will be based on categories2 (alphabetical & complete)
 
 cidx = 0;
+set_idx1 = [];
 for c = 1:ncat
     
     c1 = find(contains(categories1,categories2{c})); %find corresponding category
@@ -85,6 +86,7 @@ for c = 1:ncat
         
         %increment counter to prepare for next category
         cidx = cidx+length(cat_idx1);
+        set_idx1 = [set_idx1 frameidx];
    
     end
     
@@ -102,6 +104,18 @@ for c = 1:ncat
     cidx = cidx+length(cat_idx2);
     
     
+end
+
+%make a videolist with the final stimulus names (combined)
+for i = 1:numel(videolist)
+    vidname = videolist{i};
+    dirname = fullvideolist{i};
+    if contains(dirname,'/set1/')
+        vidname = strrep(vidname,'.mp4','_1.mp4');
+    else
+        vidname = strrep(vidname,'.mp4','_2.mp4');
+    end
+    videolist{i} = vidname;
 end
 
 save(savefile,'videolist','fullvideolist','framearray_mid','videolist','fullvideolist','categories','categories_idx','ratingsZ','rating_types','watermark','num_agents','env')
