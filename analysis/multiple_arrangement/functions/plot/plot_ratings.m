@@ -1,6 +1,6 @@
 function [] = plot_ratings(datapath)
 
-colours = [0.2 0.5 0.8; 0.2 0.7 0.5];
+colours = [0.5 0.5 0.8; 0.5 0.7 0.6];;
 metrics = {'Sociality', 'Transitivity', 'Valence', 'Arousal', 'Action'};
 m = cell(5,2); %read ratings in cell array
 
