@@ -40,7 +40,7 @@ for i = 1:2
     subplot(1,2,i)
     hold on
     
-    rectangle('Position',[0.6 nc1 4 nc2-nc1],'FaceColor',[0.85 0.85 0.85], 'EdgeColor','none')
+    rectangle('Position',[0.55 nc1 4 nc2-nc1],'FaceColor',[0.85 0.85 0.85], 'EdgeColor','none')
     
     cfg = [];
     cfg.scatter = 0;

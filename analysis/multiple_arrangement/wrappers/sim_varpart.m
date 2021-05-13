@@ -10,7 +10,7 @@ load(rdmfile,'nc'); rdm = nc.rdmvec;
 load(modelfile,'models','modelnames')
 
 %group models and select
-mod1 = {'Action category','Action','Transitivity','Effectors'};
+mod1 = {'Action category','Activity','Transitivity','Effectors'};
 mod2 = {'Number of agents','Sociality','Valence','Arousal'};
 mod3 = {'FC8','Environment'};
 mod = {mod1,mod2,mod3};

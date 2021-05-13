@@ -176,7 +176,11 @@ tidx = m; %save index of this model
 for mr = 1:4
     ratings = squeeze(nanmean(v.ratingsZ(mr,:,:),3))';
     models(:,mr+m) = pdist(ratings);
-    modelnames{mr+m} = v.rating_types{mr};
+    if mr==4
+        modelnames{mr+m} = 'Activity'; %rename 'action' ratings
+    else
+        modelnames{mr+m} = v.rating_types{mr};
+    end
 end
 
 %swap sociality & transitivity for more logical ordering

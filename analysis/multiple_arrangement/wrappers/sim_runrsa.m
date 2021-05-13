@@ -86,11 +86,11 @@ results.OrdRsquared.avg = avgOdRsq;
 
 %plot Spearman and Kendall results
 ncS = [mean(nc.looS) mean(nc.uppS)]; 
-sim_plotrsa(rsacorrS,pval_corrS,avgcorrS,ncS,modelnames,'Spearman`s rho',[]);
+figure; sim_plotrsa(rsacorrS,pval_corrS,avgcorrS,ncS,modelnames,'Spearman`s rho',[]);
 print(gcf,'-r300','-dpng',fullfile(figpath,'rsaSpearman'))
 
 ncK = [mean(nc.looK) mean(nc.uppK)];
-sim_plotrsa(rsacorrK,pval_corrK,avgcorrK,ncK,modelnames,'Kendall`s tauA',[]);
+figure; sim_plotrsa(rsacorrK,pval_corrK,avgcorrK,ncK,modelnames,'Kendall`s tauA',[]);
 print(gcf,'-r300','-dpng',fullfile(figpath,'rsaKendall'))
 
 %store everything in one place
@@ -102,7 +102,7 @@ save(rsafile,'-struct','results')
 
 %use training RDM to get a more conservative noise ceiling for plotting the
 %overall variance explained by models
-sim_plotvar(rsaAdRsq,qc.nc)
+sim_plotvar(rsaAdRsq,qc.nc);
 
 end
 

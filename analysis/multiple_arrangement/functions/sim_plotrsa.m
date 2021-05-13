@@ -29,7 +29,7 @@ boxplot_jitter_groups(rsacorr',modelnames,cfg)
 plot(1:nmod,fixedcorr,'o','LineWidth',1,'MarkerEdgeColor','k','MarkerFaceColor',[0.9 0.9 0.9],'MarkerSize',10)
 set(gca,'FontSize',18)
 for m = 1:nmod
-    if pval(m)<=alpha
+    if pval(m)<alpha
         text(m-0.05, 0.38, '*' ,'FontSize',14) %note: text position is hard-coded
     end
 end
