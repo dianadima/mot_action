@@ -30,12 +30,12 @@ for v = 1:numel(vars)
         end
 end
 
-save(savefile,'-struct','data')
-
 %create a new index corresponding to the new videolist
 for c = 1:length(data.categories)
     data.categories_idx{c} = find(contains(data.videolist,data.categories{c}));
 end
+
+save(savefile,'-struct','data')
 
 for s = 1:nstim
     if isfield(data,'fullvideolist')
