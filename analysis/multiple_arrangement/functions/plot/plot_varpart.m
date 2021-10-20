@@ -3,11 +3,12 @@ function [] = plot_varpart(respath1, respath2)
 
 rng(10) %reproducible
 respath = {respath1, respath2};
+filename = 'rsa_varpart.mat';
 figure
 
 for i = 1:2 
     
-    load(fullfile(respath{i},'rsa_varpart.mat'),'varpart')
+    load(fullfile(respath{i},filename),'varpart')
     
     
     vp = varpart.rsq_adj;
@@ -15,8 +16,8 @@ for i = 1:2
     %check which are above chance
     [~,~,~,pval_corr] = randomize_rho(vp');
     
-    uv = vp([7 6 5],:); %reorder - get unique variance for models
-    labels = {'Visual','Social','Action'};
+    uv = vp([7 5 6],:); %reorder - get unique variance for models
+    labels = {'Visual','Action','Social'};
     
     %true correlation mean+/- SD
     ncK = varpart.true_rsq;
@@ -24,9 +25,9 @@ for i = 1:2
     nc2 = mean(ncK)+std(ncK);
     
     %Wilcoxon tests to compare the unique variances
-    p(1) = signrank(uv(1,:),uv(2,:));
-    p(2) = signrank(uv(2,:),uv(3,:));
-    p(3) = signrank(uv(1,:),uv(3,:));
+    [p(1),~,stats(1)] = signrank(uv(1,:),uv(2,:));
+    [p(2),~,stats(2)] = signrank(uv(2,:),uv(3,:));
+    [p(3),~,stats(3)] = signrank(uv(1,:),uv(3,:));
     
     %y limits
     if i==1
@@ -49,7 +50,7 @@ for i = 1:2
     else
         cfg.ylabel = ' ';
     end
-    cfg.color = {[0.2 0.6 0.8],[0.6 0.6 0.8],[0.3 0.7 0.5]};
+    cfg.color = {[0.2 0.6 0.8],[0.3 0.7 0.5],[0.6 0.6 0.8]};
     cfg.mrksize = 60;
     
     boxplot_jitter_groups(uv ,labels,cfg)
@@ -76,9 +77,10 @@ for i = 1:2
     
     %save pvalues
     pval_Wilc = p;
+    stat_Wilc = stats;
     pval_Rand = pval_corr;
     
-    save(fullfile(respath{i},'rsa_varpart.mat'),'-append','pval_Wilc','pval_Rand');
+    save(fullfile(respath{i},filename),'-append','pval_Wilc','pval_Rand','stat_Wilc');
     
     
 end

@@ -5,8 +5,8 @@ rpath = {respath1, respath2};
 
 %colour grouping
 c1 = [0.2 0.6 0.8]; %visual
-c2 = [0.6 0.6 0.8]; %social
-c3 = [0.3 0.7 0.5]; %action
+c2 = [0.3 0.7 0.5]; %action
+c3 = [0.6 0.6 0.8]; %social
 colour = cell(1,17); %17 models
 colour(1:9) = {deal(c1)}; 
 colour(10:13) = {deal(c2)}; 
@@ -39,9 +39,9 @@ for i = 1:2
     set(gca,'xgrid', 'on')
     
     %plot the fixed effects correlation separately for the 3 categories
-    plot(1:9,fixcorr(1:9),'o','LineWidth',1,'MarkerEdgeColor','k','MarkerFaceColor',c1,'MarkerSize',10)
-    plot(10:13,fixcorr(10:13),'o','LineWidth',1,'MarkerEdgeColor','k','MarkerFaceColor',c2,'MarkerSize',10)
-    plot(14:17,fixcorr(14:17),'o','LineWidth',1,'MarkerEdgeColor','k','MarkerFaceColor',c3,'MarkerSize',10)
+  %  plot(1:9,fixcorr(1:9),'o','LineWidth',1,'MarkerEdgeColor','k','MarkerFaceColor',c1,'MarkerSize',10)
+  %  plot(10:13,fixcorr(10:13),'o','LineWidth',1,'MarkerEdgeColor','k','MarkerFaceColor',c2,'MarkerSize',10)
+  %  plot(14:17,fixcorr(14:17),'o','LineWidth',1,'MarkerEdgeColor','k','MarkerFaceColor',c3,'MarkerSize',10)
     
 end
     

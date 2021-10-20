@@ -2,7 +2,7 @@ function [] = plot_reliability(respath1,respath2)
 
 rpath = {respath1,respath2};
 
-colours = [0.2 0.5 0.8; 0.2 0.7 0.5]; %experiment colours
+colours = [0.5 0.5 0.8; 0.5 0.7 0.6]; %experiment colours
 labels = {'Exp 1', 'Exp 2'};
 labels = fliplr(labels);
 

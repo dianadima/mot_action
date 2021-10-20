@@ -110,7 +110,7 @@ m = m+1;
 
 %% CNN
 % extract Conv1 and FC8 activations from AlexNet
-sel_layers = {'conv1','fc8'};
+sel_layers = {'pool1','fc8'};
 numlayers = numel(sel_layers);
 cnnfeatures = cell(numel(sel_layers),1);
 

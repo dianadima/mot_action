@@ -26,7 +26,7 @@ if ~isempty(color), cfg.color = color; else, cfg.color = [0.5 0.5 0.5]; end
 cfg.mrksize = 40;
 
 boxplot_jitter_groups(rsacorr',modelnames,cfg) 
-plot(1:nmod,fixedcorr,'o','LineWidth',1,'MarkerEdgeColor','k','MarkerFaceColor',[0.9 0.9 0.9],'MarkerSize',10)
+%plot(1:nmod,fixedcorr,'o','LineWidth',1,'MarkerEdgeColor','k','MarkerFaceColor',[0.9 0.9 0.9],'MarkerSize',10)
 set(gca,'FontSize',18)
 for m = 1:nmod
     if pval(m)<alpha
