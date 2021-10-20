@@ -15,6 +15,7 @@ of_y = nan(nvid, prod(inputsize)); %y component
 %video loop
 for v = 1:nvid
     
+    fprintf('\nVideo %d...\n',v);
     vid = VideoReader(videolist{v});
     oF = opticalFlowHS;
     

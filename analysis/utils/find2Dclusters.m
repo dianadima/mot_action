@@ -1,6 +1,6 @@
 function cl2Dstats = find2Dclusters(obs_stat,r_stat,opt)
+%find clusters in 2D data; one-sided test
 
-try num_iterations = opt.num_iterations; catch, num_iterations = 5000; end
 try clusteralpha = opt.clusteralpha; catch, clusteralpha = 0.05; end
 try alpha = opt.alpha; catch, alpha = 0.005; end
 try clusterthresh = opt.clusterthresh; catch, clusterthresh = 'individual'; end
@@ -9,11 +9,12 @@ try clusterstatistic = opt.clusterstatistic; catch, clusterstatistic = 'maxsum';
 
 if isvector(obs_stat), obs_stat = obs_stat(:); end
 
-num_it = num_iterations;
+num_it = size(r_stat,1);
 prc = 100* (1 - clusteralpha); %get cluster-setting percentile
 if strcmp(clusterthresh, 'individual')
     thresh = prctile(r_stat,prc,1); %individual threshold setting, as in FT nonparametric_individual option
-    o_thresh = squeeze(thresh); if isvector(o_thresh), o_thresh = o_thresh(:); end
+    o_thresh = squeeze(thresh); 
+    if isvector(o_thresh), o_thresh = o_thresh(:); end
     obs_map = double(obs_stat>=o_thresh);
     if ismatrix(r_stat), r_thresh = repmat(thresh,num_it,1); elseif ndims(r_stat)==3, r_thresh = repmat(thresh,num_it,1,1); end
     r_map = double(r_stat>=r_thresh); %ones for values that should go in the clusters
@@ -32,7 +33,10 @@ for i = 1:num_it
     
     r_map_ = squeeze(r_map(i,:,:));
     r_cls =  bwconncomp(r_map_,conn);
-    r_stat_ = squeeze(r_stat(i,:,:)); if isvector(r_stat_), r_stat_ = r_stat_(:); end
+    r_stat_ = squeeze(r_stat(i,:,:)); 
+    if isvector(r_stat_), r_stat_ = r_stat_(:); end
+    
+    %get the maximal statistic distribution
     if ~isempty(r_cls.PixelIdxList) && strcmp(clusterstatistic,'maxsize')
         max_r_cls(i) = max(cellfun(@length,r_cls.PixelIdxList));
     elseif ~isempty(r_cls.PixelIdxList) && strcmp(clusterstatistic,'maxsum')
@@ -69,6 +73,8 @@ if strcmp(clusterstatistic,'maxsize')
         for i = 1:length(obs_clstat)
             cluster_pvals(i) = ((sum(max_r_cls>=obs_clstat(i)))+1)/(num_it+1);
         end
+    else
+        cluster_pvals = NaN;
     end
 elseif strcmp(clusterstatistic,'maxsum')
     cluster_pvals = nan(1,length(obs_cls.PixelIdxList));

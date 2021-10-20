@@ -1,4 +1,4 @@
-function [] = plot_rdm(rdm,categories,categories_idx,colbar,textflag)
+function [] = plot_rdm(rdm,categories,categories_idx,colbar,textflag)%,pval)
 % plot the lower triangle of a symmetric matrix 
 % Inputs: rdm, symmetric matrix or vectorized lower/upper triangle
 %         categories, names of data categories if present (otherwise [])
@@ -72,7 +72,7 @@ if textflag
     rdm(isnan(mask)) = NaN;
     for mi = 1:size(rdm,1)
         for mj = 1:size(rdm,2)
-            if ~isnan(rdm(mi,mj)) && rdm(mi,mj)>=0.1
+            if ~isnan(rdm(mi,mj)) && rdm(mi,mj)>=0.1 %pval(mi,mj)<0.01
                 text(mj,mi, sprintf('%.02f',rdm(mi,mj)),'Color','w','FontSize',10,'HorizontalAlignment','center');
             end
         end

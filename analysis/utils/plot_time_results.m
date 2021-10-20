@@ -74,7 +74,7 @@ end
 
 %plot time-course with shaded error bar
 l0 = patch([time fliplr(time)], [smooth(upper, pr.smooth)' fliplr(smooth(lower, pr.smooth)')], pr.color, 'EdgeColor', 'none'); hasbehavior(l0, 'legend', false);
-alpha 0.15; hold on; 
+alpha 0.25; hold on; 
 if isempty(pr.ylim), pr.ylim = get(gca, 'ylim'); end
 if ~isempty(pr.chance)
     l1 = line([time(1) time(end)], [pr.chance pr.chance], 'color', [0.5 0.5 0.5]); hold on; hasbehavior(l1, 'legend', false);

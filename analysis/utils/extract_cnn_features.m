@@ -13,7 +13,7 @@ function [features, layer_labels, cnn_models] = extract_cnn_features(nettype,ima
 switch nettype
     case 'alexnet'
         net = alexnet;
-        layers = {'conv1', 'conv2', 'conv3', 'conv4', 'conv5', 'fc6', 'fc7', 'fc8'};
+        layers = {'pool1','pool2','relu3','relu4','pool5','fc6','fc7','fc8'};
         layer_labels = {'Conv1', 'Conv2', 'Conv3', 'Conv4', 'Conv5', 'FC6', 'FC7', 'FC8'};
     case 'vgg19'
         net = vgg19;
