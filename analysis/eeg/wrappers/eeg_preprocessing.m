@@ -7,14 +7,17 @@ function [] = eeg_preprocessing(eegpath, trlpath, outpath, rerunflag)
 %         rerunflag: if 0, will attempt to reload preprocessed data from outpath and plot it; 
 %                    if 1, will attempt to load artefact rejection criteria from file and reapply them; 
 %                    if 2, will rerun pipeline from scratch even if preprocessed data exists.
-%D.C. Dima (diana.c.dima@gmail.com) Feb 2020
+% D.C. Dima (diana.c.dima@gmail.com) Feb 2020
 
 %get the list of .mat files containing the trial lists and responses
 trldir = dir(trlpath); trldir = {trldir(3:end).name};
+if any(contains(trldir,'.DS_Store')),trldir(contains(trldir,'.DS_Store')) = []; end
 
 nsub = numel(trldir);           %number of subjects
 timelock_array = cell(nsub,1);  %store timelock data in cell array for averaging
 
+%get preprocessing data across subjects
+p = struct;
 
 for isub = 1:nsub
     
@@ -40,7 +43,6 @@ for isub = 1:nsub
     if exist(outfile,'file') && ~rerunflag                              %do not rerun - load existing data
         
         data = load(outfile);
-        eeg_readphotoduration(hdrfile,eegfile,prcfile); 
         
     elseif exist(prcfile,'file') && rerunflag==1                        %rerun, but load existing processing parameters
         
@@ -50,8 +52,10 @@ for isub = 1:nsub
     else                                                                %run from scratch
         
         data = eeg_readdata(hdrfile,eegfile);                           %read and realign data
-        [data, ~] = eeg_cleandata(data, outfile, trlfile);%, prcfile);  %reject artifacts/preprocess
-        eeg_readphotoduration(hdrfile,eegfile,prcfile);                 %save stimulus duration for each subject
+        [data, ~] = eeg_cleandata(data, outfile, trlfile);              %reject artifacts/preprocess
+        if isub~=13                                                     %photodiode signal missing
+            eeg_readphotoduration(hdrfile,eegfile,prcfile);             %save stimulus duration for each subject
+        end
     end
     
     %timelock analysis
@@ -60,15 +64,21 @@ for isub = 1:nsub
     eeg_ploterp(timelock, sub, figpath) %plot & save ERP topographies/butterfly plot
     
     timelock_array{isub} = timelock;
+    p = eeg_savepreproc(prcfile,isub,p);
+    
     
 end
 
+save(fullfile(outpath,'preproc.mat'),'-struct','p')
 close all
  
 %plot & save grand average topography and global field power
 cfg = [];
 subtimelock = ft_timelockgrandaverage(cfg,timelock_array{:});
+save(fullfile(outpath,'avg_erp.mat'),'subtimelock','timelock_array')
 eeg_ploterp(subtimelock,'avg',figpath);
+
+
 
 end
 

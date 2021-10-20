@@ -3,18 +3,10 @@ function [rsa_results] = eeg_rsa(cfg)
 % input: cfg with optional settings
 
 % parse inputs
-try nsub = cfg.nsub; catch, nsub = 10; cfg.nsub = nsub; end
-try nwin = cfg.nwin; catch, nwin = 601; cfg.nwin = nwin; end
-try method = cfg.method; catch, method = 'euclid'; cfg.method = method; end
-try type = cfg.type; catch, type = 'kendall'; end
-try analysis_window = cfg.analysis_window; catch, analysis_window = [-0.2 1]; cfg.analysis_window = analysis_window; end
-try window_length = cfg.window_length; catch, window_length = 1; cfg.window_length = window_length; end
-
 try outpath = cfg.outpath; catch, outpath = pwd;cfg.outpath = outpath; end
-rsapath = fullfile(outpath,'RSA');
-try modfile = cfg.modfile; catch, modfile = fullfile(rsapath,'models.mat'); cfg.modfile = modfile; end
-try outfile = fullfile(rsapath,cfg.outfile); catch, outfile = fullfile(rsapath, sprintf('rsa_results_%s_%s.mat',method,type)); cfg.outfile = outfile; end
-
+rsapath = fullfile(outpath,'RSA'); if ~exist(rsapath,'dir'), mkdir(rsapath); end
+try modfile = cfg.modfile; catch, modfile = fullfile(rsapath,'behavior.mat'); cfg.modfile = modfile; end
+try outfile = fullfile(rsapath,cfg.outfile); catch, outfile = fullfile(rsapath, 'rsa.mat'); cfg.outfile = outfile; end
 try plotflag = cfg.plot; catch, plotflag = 1; end
 try nperm = cfg.nperm; catch, nperm = 5000; cfg.nperm = nperm; end
 
@@ -29,49 +21,35 @@ catch
     end
 end
 
+%load decoding matrix    
+if ~isfield(cfg, 'decoding_file')
+    cfg.decoding_file = uigetfile('','Select file with decoding results');
+end
+load(cfg.decoding_file,'decoding_accuracy','time');
+
+%create new time axis
+time_orig = time;
+[winmat,time,nwin] = eeg_timewindows(time_orig,numel(time_orig));
 
 %initialize variables
 nprs = size(models,1); %number of pairs
 nmod = size(models,2); %number of models
+nsub = numel(decoding_accuracy);
 rsacorr = nan(nsub,nwin,nmod);
-rsardm = nan(nsub,nprs,nwin);
-
+rsardm = nan(nsub,nprs,size(decoding_accuracy{1},1));
+    
 %run subject-wise analysis
 for isub = 1:nsub
-    
-    %get subject specific paths and filenames
-    sub = sprintf('%02.f',isub);
-    suboutpath = fullfile(outpath, sub);
-    fprintf('Running participant %d...\n',isub)
-    
-    switch method
-        
-        case 'euclid'
-            
-            datafile = fullfile(suboutpath, [sub 'data.mat']);
-            data = load(datafile);
-            datamatrix = eeg_preparerdm(data,1); %1 = average: prepares an RDM by averaging video repeats
-            if size(datamatrix,3)~=152
-                fprintf('\nSub%d:%dvideos\n',isub,size(datamatrix,3));
-            end
-            [~,rdm] = eeg_makerdm(datamatrix, 'channels', 'all', 'time', data.time{1},'analysis_window',analysis_window,'window_length',window_length);
-            
-        case 'decoding'
-            
-            if ~isfield(cfg, 'decoding_file')
-                cfg.decoding_file = uigetfile('','Select file with decoding results');
-            end
-            load(cfg.decoding_file,'decoding_accuracy','time');
-            if isstruct(decoding_accuracy)
-                rdm = decoding_accuracy(isub).d';
-            elseif iscell(decoding_accuracy)
-                rdm = decoding_accuracy{isub}.d';
-            else
-                rdm = squeeze(decoding_accuracy(isub,:,:))';
-            end
+   
+    if isstruct(decoding_accuracy)
+        rdm = decoding_accuracy(isub).d';
+    elseif iscell(decoding_accuracy)
+        rdm = decoding_accuracy{isub}.d';
+    else
+        rdm = squeeze(decoding_accuracy(isub,:,:))';
     end
-    
-    subcorr = eeg_runrsa(rdm, models, type);
+
+    [subcorr,time] = eeg_runrsa(rdm, models, time_orig, 'kendall');
     rsacorr(isub,:,:) = subcorr;
     rsardm(isub,:,:) = rdm;
     
@@ -79,20 +57,40 @@ end
 
 %average version
 avgrsardm = squeeze(mean(rsardm,1));
-avgcorr = eeg_runrsa(avgrsardm, models, type);
+avgcorr = eeg_runrsa(avgrsardm, models, time_orig, 'kendall');
 
 %sign permutation testing
 [pval,obs,rand,pval_corr] = randomize_rho(rsacorr,'num_iterations',nperm);
 
 clustersigt = false(size(obs));
 clusterpval = cell(nmod,1);
+opt.alpha = 0.05;
+opt.clusteralpha = 0.05;
 for imod = 1:nmod
-    cluster = find2Dclusters(obs(:,imod),rand(:,:,imod),[]);
+    cluster = find2Dclusters(obs(:,imod),rand(:,:,imod),opt);
     if ~isempty(cluster.sigclusters)
         clustersigt(:,imod) = cluster.sigtime;
         clusterpval{imod} = cluster.sigpvals;
     end
 end
+
+% noise ceiling
+nc_low = nan(nsub,nwin);
+nc_upp = nan(nsub,nwin);
+
+avg = squeeze(mean(rsardm,1));
+for isub = 1:nsub
+    tmp1 = squeeze(rsardm(isub,:,:));
+    tmp2 = rsardm;
+    tmp2(isub,:,:) = [];
+    tmp2 = squeeze(mean(tmp2,1));
+    for iwin = 1:nwin
+        widx = winmat(:,iwin);
+        nc_low(isub,iwin) = rankCorr_Kendall_taua(mean(tmp1(:,widx),2), mean(tmp2(:,widx),2));
+        nc_upp(isub,iwin) = rankCorr_Kendall_taua(mean(tmp1(:,widx),2), mean(avg(:,widx),2));
+    end
+end
+
 
 %save results
 rsa_results.subcorr = rsacorr;
@@ -104,15 +102,12 @@ rsa_results.clusterpval = clusterpval;
 rsa_results.avgrdm = avgrsardm;
 rsa_results.avgcorr = avgcorr;
 rsa_results.modelnames = modelnames;
+rsa_results.time = time;
+rsa_results.nc.upp = nc_upp;
+rsa_results.nc.low = nc_low;
 rsa_results.cfg = cfg;
 
-if exist('data','var')
-    time = data.time{1};
-    time = time(nearest(time,analysis_window(1)):window_length:nearest(time,analysis_window(2)));
-    rsa_results.time = time;
-elseif exist('time','var')
-    rsa_results.time = time;
-end
+rsa_results = eeg_rsaonsets(rsa_results);
 
 save(outfile,'-struct','rsa_results')
 

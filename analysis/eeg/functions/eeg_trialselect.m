@@ -6,49 +6,53 @@ function [data,preproc] = eeg_trialselect(data, preproc, trlfile)
 
 %% load .mat file containing trial list & responses
 trl = load(trlfile);
+ntrl = 1720;
 
 %check if a response variable was recorded and remove all trials with a response in addition to the catch trials
-if isfield(trl,'response')
+if isfield(trl,'response') && ~contains(trlfile,'p14')
     trl.catch_trl_idx = unique([trl.catch_trl_idx find(trl.response)]);
 end
+
+%make a catch/response trial index
+catchlist = false(1,ntrl); 
+catchlist(trl.catch_trl_idx) = 1;
 
 %for the first participant - remove the last trial
 if contains(trlfile, 'p01')
     %remove last trial which was not recorded in pilot session
-    trl.trl_list = trl.trl_list(1:end-1);
+    triallist = trl.trl_list(1:end-1);
+    catchlist = catchlist(1:end-1);
 elseif contains(trlfile,'p07')
     %remove first 3 trials, not recorded in EEG
-    trl.trl_list = trl.trl_list(4:end); 
-    trl.catch_trl_idx = trl.catch_trl_idx - 3;
+    triallist = trl.trl_list(4:end); 
+    catchlist = catchlist(4:end);
 elseif contains(trlfile,'p10')
     %remove first 2 trials, not recorded in EEG
-    trl.trl_list = trl.trl_list(3:end); 
-    trl.catch_trl_idx = trl.catch_trl_idx - 2;
+    triallist = trl.trl_list(3:end); 
+    catchlist = catchlist(3:end);
+else
+    triallist = trl.trl_list;
 end
 
-trl.catch_trl_idx(trl.catch_trl_idx<1) = []; %in case indices point to removed trials
+preproc.catch_trl = catchlist;                    %save index of catch trials in the preproc struct
 
-%% 1. make logical index of catch trials matching EEG data size (with bad trials removed)
-% this will be removed from the EEG data
-trl_rmv_eeg = false(1,length(trl.trl_list));        %initialize with all trials set to 0
-trl_rmv_eeg(trl.catch_trl_idx) = 1;                 %set catch trials to 1
-trl_rmv_eeg = trl_rmv_eeg(preproc.idx_badtrial==0); %keep only good trials, so as to match EEG data which has been cleaned
+%% 1. remove catch trials from clean EEG data
+% adjust catch trial index to EEG size
+trl_rmv_eeg = catchlist(preproc.idx_badtrial==0); %keep only good trials, so as to match EEG data which has been cleaned
 
-%new EEG data struct: keep only the trials set to 1 in the EEG index
+%new EEG data struct: keep only the trials set to 0 in the catch trial index
 cfg = [];
 cfg.trials = find(~trl_rmv_eeg);
 data = ft_preprocessing(cfg, data);
 
-%% 2. make logical index of catch trial & bad EEG trials matching trial list size
-% this will be removed from the trial list 
-trl_rmv_lst = false(1,length(trl.trl_list));        %initialize with all trials set to 0
-trl_rmv_lst(trl.catch_trl_idx) = 1;                 %set catch trials to 1
-preproc.catch_trl = trl_rmv_lst;                    %save index of catch trials in the preproc struct
-trl_rmv_lst(preproc.idx_badtrial) = 1;              %also set the EEG-based bad trials to 1, so that all are removed
-
-%new trial list: keep only the trials set to 1 in the trial list index
-triallist = trl.trl_list;
+%% 2. remove (1) bad EEG trials (2) catch & response trials from trial list
+trl_rmv_lst = logical(catchlist'+preproc.idx_badtrial);
 triallist(trl_rmv_lst) = [];
+
+if numel(triallist)~=numel(data.trial)
+    error('Something is wrong with the trial selection')
+end
+
 
 %% save
 

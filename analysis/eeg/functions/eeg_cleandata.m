@@ -20,12 +20,14 @@ layout = 'acticap-64ch-standard2';
 resamplefs = 500;
 
 %low-pass filtering
-lpfilt = 30;
+lpfilt = 100;
 
 %% load data from file if not provided as a struct
 if ischar(rawdata)
     rawdata = load(rawdata);
 end
+
+%badtrl_pho = rawdata.badtrials_photo;
  
 %no preproc file provided; run artefact rejection from scratch
 if isempty(varargin)
@@ -95,14 +97,6 @@ if isempty(varargin)
     cfg.channel = chan;
     data_clean = ft_preprocessing(cfg,rawdata);
     
-    %rereference again - will be more robust after data cleaning
-    cfg            = [];
-    cfg.channel    = {'all','-Photodiode'};
-    cfg.reref      = 'yes';
-    cfg.refchannel = 'all';
-    cfg.refmethod  = 'avg';
-    data_clean = ft_preprocessing(cfg, data_clean);
-    
     %% 3. ICA for EOG/ECG artefacts
     
     %downsample to speed up ICA
@@ -133,7 +127,7 @@ if isempty(varargin)
     % plot topographies for first 16 components
     figure
     cfg = [];
-    cfg.component = 1:16;
+    cfg.component = 1:20;
     cfg.layout    = layout;
     cfg.comment   = 'no';
     ft_topoplotIC(cfg, comp)
@@ -166,7 +160,7 @@ if isempty(varargin)
     cfg.demean = 'no'; %note - data is demeaned by default
     data = ft_rejectcomponent(cfg, comp_orig, data_clean);
     
-    clear data_clean_ds;
+    clear data_clean_ds
     
     %check the dataset quality one final time
     cfg = [];
@@ -181,6 +175,24 @@ if isempty(varargin)
     comp = rmfield(comp, 'time');
     comp = rmfield(comp, 'trial');
     
+    %rereference - will be more robust after data cleaning
+    cfg            = [];
+    cfg.reref      = 'yes';
+    cfg.refchannel = 'all';
+    cfg.implicitref = 'Cz';
+    cfg.refmethod  = 'avg';
+    
+    %low-pass filter as requested (30 Hz/100 Hz)
+    cfg.lpfilter = 'yes';
+    cfg.lpfreq = lpfilt;
+    data = ft_preprocessing(cfg,data);
+    
+    %resample data
+    cfg = [];
+    cfg.detrend = 'no';
+    cfg.resamplefs = resamplefs;
+    data = ft_resampledata(cfg,data);
+    
     preproc.num_channels = length(data.label);
     preproc.num_badtrial = sum(badtrial_idx);
     preproc.idx_badtrial = badtrial_idx;
@@ -194,24 +206,10 @@ if isempty(varargin)
     %remove catch/response trials and correct trial list to match cleaned EEG data
     [data, preproc] = eeg_trialselect(data,preproc,trlfile);
     
-    %make sure these fields are preserved
-    triallist = data.triallist;
-    videofiles = data.videofiles;
-    
-    %low-pass filter as requested (30 Hz/100 Hz)
-    cfg = [];
-    cfg.lpfilter = 'yes';  
-    cfg.lpfreq = lpfilt;
-    data = ft_preprocessing(cfg,data);
-
-    %resample data
-    cfg = [];
-    cfg.detrend = 'no';
-    cfg.resamplefs = resamplefs;
-    data = ft_resampledata(cfg,data);
-    
-    data.triallist = triallist;
-    data.videofiles = videofiles;
+    %sanity check: plot the average data
+    figure
+    tmp = cat(3,data.trial{:});
+    plot(data.time{1},mean(mean(tmp,1),3))
     
     %save outputs
     save(outfile, '-v7.3', '-struct', 'data'); %save the cleaned & preprocessed data
@@ -222,9 +220,10 @@ if isempty(varargin)
 else
     
     %loads in the preproc structure with bad trials marked
-    %useful for tweking processing parameters w/o rerunning artefact rejection
+    %useful for tweaking processing parameters w/o rerunning artefact rejection
     preprocfile = varargin{1};
     preproc = load(preprocfile);
+
     badtrial_idx = preproc.idx_badtrial; %indices of bad trials
     chan = preproc.chan;                 %channels to keep
     comp = preproc.icacomponent;         %ICA components
@@ -235,14 +234,6 @@ else
     cfg.trials = find(~badtrial_idx);
     cfg.channel = chan;
     data_clean = ft_preprocessing(cfg,rawdata);
-    
-    %rereference again - will be more robust after data cleaning
-    cfg            = [];
-    cfg.channel    = {'all','-Photodiode'};
-    cfg.reref      = 'yes';
-    cfg.refchannel = 'all';
-    cfg.refmethod  = 'avg';
-    data_clean = ft_preprocessing(cfg, data_clean);
     
     %remove ICA bad components
     %this projects the artefactual components out of the original data
@@ -259,6 +250,19 @@ else
     
     clear data_clean
     
+    %low-pass filter as requested (30 Hz/100 Hz)
+    cfg = [];
+    cfg.lpfilter = 'yes';
+    cfg.lpfreq = lpfilt;
+    
+    %rereference - will be more robust after data cleaning
+    cfg.reref      = 'yes';
+    cfg.implicitref = 'Cz';
+    cfg.refchannel = 'all';
+    cfg.refmethod  = 'median';
+    
+    data = ft_preprocessing(cfg,data);
+    
     %resample data
     cfg = [];
     cfg.detrend = 'no';
@@ -268,18 +272,10 @@ else
     %remove catch/response trials and correct trial list to match cleaned EEG data
     [data, preproc] = eeg_trialselect(data,preproc,trlfile);
     
-    %make sure these fields are preserved
-    triallist = data.triallist;
-    videofiles = data.videofiles;
-    
-    %low-pass filter as requested (30 Hz/100 Hz)
-    cfg = [];
-    cfg.lpfilter = 'yes';
-    cfg.lpfreq = lpfilt;
-    data = ft_preprocessing(cfg,data);
-    
-    data.triallist = triallist;
-    data.videofiles = videofiles;
+    %sanity check: plot the average data
+    figure
+    tmp = cat(3,data.trial{:});
+    plot(data.time{1},mean(mean(tmp,1),3))
     
     %save outputs
     save(outfile, '-v7.3', '-struct', 'data'); %save the cleaned & preprocessed data

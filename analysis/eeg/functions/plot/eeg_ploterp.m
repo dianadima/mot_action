@@ -32,7 +32,9 @@ pos = get(gca,'Position');
 colorbar('Position', [pos(1)+pos(3)+0.03  pos(2)  0.03  pos(2)+pos(3)])
 
 %save
-print(gcf,'-dpng','-r300',fullfile(figpath, [sub '_erp_topo']))
+if ~isempty(figpath)
+    print(gcf,'-dpng','-r300',fullfile(figpath, [sub '_erp_topo']))
+end
 
 %% butterfly plot with GFP
 cfg = [];
@@ -48,7 +50,9 @@ set(gca,'FontSize',12)
 xlabel('Time (s)')
 ylabel('Amplitude (\muV)')
 
-print(gcf,'-dpng','-r300',fullfile(figpath,[sub '_erp_gfp']))
+if ~isempty(figpath)
+    print(gcf,'-dpng','-r300',fullfile(figpath,[sub '_erp_gfp']))
+end
 
 end
 
