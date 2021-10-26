@@ -1,6 +1,6 @@
 data/
 results/
-analysis/utils/dependencies/
+analysis/utils
 analysis/utils/colormaps/
 *.asv
 **/*.asv
