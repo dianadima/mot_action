@@ -1,7 +1,5 @@
 data/
 results/
-analysis/utils
-analysis/utils/colormaps/
 *.asv
 **/*.asv
 .DS_Store
