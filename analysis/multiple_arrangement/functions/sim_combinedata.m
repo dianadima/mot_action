@@ -1,5 +1,6 @@
 function [] = sim_combinedata(file1,file2,savefile)
-%combine two batches of MA data and save them in a combined file
+% combine two batches of multiple arrangement data (Exp 1) and save them in a combined file
+% inputs: file1, file2, filename to save
 
 d1 = load(file1);
 d2 = load(file2);

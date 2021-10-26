@@ -1,7 +1,8 @@
 function [rdm] = sim_readdata_exp2(datapath,savefile)
-%read and save Meadows MA data from json files - Experiment 2
-%datapath: data directory
-%savefile: data file to be saved
+% read and save Meadows multiple arrangement data from json files - Experiment 2
+% datapath: data directory
+% savefile: data file to be saved
+% DC Dima 2020 (diana.c.dima@gmail.com)
 
 nstim = 65; %hard-coded
 

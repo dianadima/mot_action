@@ -1,5 +1,7 @@
 function [] = plot_rsa(respath1, respath2, idx)
-%plot behavior-RSA model correlations for both experiments
+% plot behavior-feature RSA correlations for both experiments
+% inputs: paths to directories containing rsa.mat results files for the two experiments
+%         idx - feature ordering index
 
 rpath = {respath1, respath2};
 
@@ -7,7 +9,9 @@ rpath = {respath1, respath2};
 c1 = [0.2 0.6 0.8]; %visual
 c2 = [0.3 0.7 0.5]; %action
 c3 = [0.6 0.6 0.8]; %social
-colour = cell(1,17); %17 models
+
+% make a colour cell array for all feature RDMs
+colour = cell(1,17); %17 feature models
 colour(1:9) = {deal(c1)}; 
 colour(10:13) = {deal(c2)}; 
 colour(14:17) = {deal(c3)};
@@ -20,7 +24,7 @@ for i = 1:2
     load(fullfile(rpath{i},'rsa.mat'),'Kendall','modelnames')
     
     %reorder variables for plotting
-    rsacorr = Kendall.rsacorr(:,idx);  %ind RSA correlations
+    rsacorr = Kendall.rsacorr(:,idx);  %individual RSA correlations
     pvalcor = Kendall.pvalcorr(:,idx); %omnibus-corrected p-values
     fixcorr = Kendall.avgcorr(idx);    %average RSA correlations
     nc = Kendall.noise_ceiling;        %noise ceiling range (lower and upper bounds)

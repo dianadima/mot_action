@@ -1,6 +1,8 @@
 function [ correlation_matrix, time ] = eeg_runrsa (eeg_rdm, models, time, type)
 % Run Representational Similarity RSA by comparing a MEG RDM to models over time.
 % Input: eeg_rdm (features x time or features x time x space), models (features x num models)
+%        time: time axis, when provided will be converted to sliding windows
+%        type: 'spearman' or 'kendall'
 % Output: correlation matrix (time x models or time x space x models)
 %
 % DC Dima 2017 (diana.c.dima@gmail.com), adapted for EEG Feb 2020

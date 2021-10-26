@@ -1,9 +1,10 @@
-function [] = sim_varpart(rdmfile,modelfile,vpfile, exp)
-%variance partitioning analysis
-%input: rdmfile, file with RDM and noise ceiling
-%       modelfile, file with RSA models
-%       vpfile, file with results to be saved
-%       exp, experiment number (1 or 2), determines cross-validation scheme
+function [] = sim_varpart(rdmfile, modelfile, vpfile, exp)
+% Variance partitioning analysis
+% Input: rdmfile, file with RDM and noise ceiling
+%        modelfile, file with RSA models
+%        vpfile, file with results to be saved
+%        exp, experiment number (1 or 2), determines cross-validation scheme
+% DC Dima 2021 (diana.c.dima@gmail.com)
 
 %load files & get vectorized RDM
 load(rdmfile,'nc'); rdm = nc.rdmvec;

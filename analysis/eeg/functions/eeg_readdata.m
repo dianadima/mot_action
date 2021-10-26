@@ -18,7 +18,6 @@ cfg.trialdef.poststim = 1.5;         %read in larger epochs to help with alignme
 cfg = ft_definetrial(cfg);  
 data = ft_preprocessing(cfg);
 data = eeg_alignphoto(data, toi);    %realign trials to photodiode and cut into epochs of interest
-%badtrials_photo = data.badtrials_photo;
 
 cfg = [];
 cfg.toilim = toi;
@@ -38,14 +37,13 @@ cfg.hpfiltord = 3;                    %a lower filter order ensures filter stabi
 
 data = ft_preprocessing(cfg,data);
 
-%deal with 3rd participant issue of one extra block recorded at the start
+%deal with 3rd & 11th participant issue of one extra block recorded at the start
 if contains(hdrfile,'0003') || contains(hdrfile,'0011')
     cfg = [];
     cfg.trials = 151:numel(data.trial);
     data = ft_preprocessing(cfg, data);
 end
 
-%data.badtrials_photo = badtrials_photo;
 
 
 

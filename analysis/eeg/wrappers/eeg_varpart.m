@@ -6,6 +6,7 @@ function [] = eeg_varpart(cfg)
 %        vpfile: output file
 %        decoding_file: file with decoding accuracy/RDM
 %        type: 'cv', split-half cross-validated, or 'avg', fixed-effects
+% DC Dima 2021 (diana.c.dima@gmail.com)
 
 try outpath = cfg.outpath; catch, outpath = pwd; cfg.outpath = outpath; end 
 rsapath = fullfile(outpath,'RSA');
@@ -15,13 +16,14 @@ try vpfile = fullfile(rsapath,cfg.vpfile); catch, vpfile = fullfile(rsapath, 'rs
 try type = cfg.type; catch, type = 'cv'; end %cross-validated (cv) vs fixed-effects (avg)
 try decoding_file = fullfile(outpath, cfg.decoding_file); catch, decoding_file = fullfile(outpath,'decoding_accuracy.mat'); end
 
+%load decoding matrix used as time-resolved RDM
 load(decoding_file,'decoding_matrix','time')
 rdm = decoding_matrix; clear decoding_matrix   
 load(modfile,'models','modelnames')
 
 %group models and select
 mod1 = {'Action category','Activity','Transitivity','Effectors'};
-mod2 = {'Number of agents','Valence','Arousal'}; %'Sociality',
+mod2 = {'Number of agents','Valence','Arousal','Sociality'};
 mod3 = {'Environment','FC8','Conv1'};
 
 groupnames = {'Action', 'Social', 'Visual'};
@@ -29,10 +31,12 @@ mod = {mod1,mod2,mod3};
 ncomb = 7; 
 sel_mod = sim_prepmodels(mod,models,modelnames);
 
+%cross-validated variance partitioning
 if strcmp(type,'cv')
     
-    varpart = eeg_varpartcv(rdm,time,reg,sel_mod{1},sel_mod{2},sel_mod{3});
+    varpart = eeg_varpartcv(rdm,time,sel_mod{1},sel_mod{2},sel_mod{3});
 
+%fixed-effects variance partitioning
 elseif strcmp(type,'avg')
     
     % get time windows and normalize RDM
@@ -84,6 +88,7 @@ varpart.modelnames = groupnames;
 varpart = eeg_varpartstats(varpart);
 save(vpfile,'varpart');
 
+% plot results
 eeg_plotvarpart(varpart)
 
 % select the models/sets of models for variance partitioning

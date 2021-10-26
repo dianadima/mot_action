@@ -1,4 +1,6 @@
 function [] = plot_rdms(respath1,respath2)
+% plot average behavioral RDMs from both experiments
+% input: path to directory containing rdm.mat files
 
 rpath = {respath1,respath2};
 figure

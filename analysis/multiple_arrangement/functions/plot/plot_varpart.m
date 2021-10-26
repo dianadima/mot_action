@@ -1,5 +1,6 @@
 function [] = plot_varpart(respath1, respath2)
-%plot cross-validated variance partitioning results
+% plot cross-validated variance partitioning results
+% inputs: paths to directories containing rsa_varpart.mat files for the two experiments
 
 rng(10) %reproducible
 respath = {respath1, respath2};
@@ -9,18 +10,28 @@ figure
 for i = 1:2 
     
     load(fullfile(respath{i},filename),'varpart')
-    
-    
-    vp = varpart.rsq_adj;
+     
+    %two variable naming conventions
+    try
+        vp = varpart.rsq_adj;
+    catch
+        vp = varpart.var_exp;
+    end
     
     %check which are above chance
     [~,~,~,pval_corr] = randomize_rho(vp');
     
-    uv = vp([7 5 6],:); %reorder - get unique variance for models
+    %reorder & get unique variance for models
+    uv = vp([7 5 6],:); 
     labels = {'Visual','Action','Social'};
     
     %true correlation mean+/- SD
-    ncK = varpart.true_rsq;
+    try
+        ncK = varpart.true_rsq;
+    catch
+        ncK = varpart.var_true;
+    end
+    
     nc1 = mean(ncK)-std(ncK);
     nc2 = mean(ncK)+std(ncK);
     
@@ -29,7 +40,7 @@ for i = 1:2
     [p(2),~,stats(2)] = signrank(uv(2,:),uv(3,:));
     [p(3),~,stats(3)] = signrank(uv(1,:),uv(3,:));
     
-    %y limits
+    %set y limits
     if i==1
         yl = [0 0.05];
     else

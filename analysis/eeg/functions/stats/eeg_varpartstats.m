@@ -1,9 +1,10 @@
 function [vp] = eeg_varpartstats(vp)
 % run cluster-corrected stats for variance partitioning analyses
+% DC Dima 2021 (diana.c.dima@gmail.com)
 
 nreg = 7; %number of regressions
 
-if isfield(vp,'rsq_rnd') %fixed-effects case
+if isfield(vp,'rsq_rnd') %fixed-effects case: randomization testing
     
     maxd = squeeze(max(vp.rsq_rnd,[],1)); %nperm x nwin
     nperm = size(maxd,1);
@@ -22,7 +23,7 @@ if isfield(vp,'rsq_rnd') %fixed-effects case
     clustersig = zeros(size(pval));
     clusterpval = cell(nreg,1);
     opt = []; 
-    opt.alpha = 0.001;
+    opt.alpha = 0.001; %since this is fixed-effects, take the minimum possible p-values
     opt.clusteralpha = 0.05;
     opt.clusterstatistic = 'maxsize';
     rsq_rnd = squeeze(max(vp.rsq_rnd,[],1));
@@ -74,10 +75,10 @@ else %cross-validated case
     vp.stats.clustersig = clustersig;
     vp.stats.clusterpval = clusterpval;
     
-    %test differences between features
+    %test absolute differences between features
     uv = obs([7 6 5],:); 
     rv = rand(:,[7 6 5],:);
-    idx = [1 2; 2 3; 1 3];
+    idx = [1 2; 2 3; 1 3]; %vis vs soc; soc vs act; vis vs act
     
     comp_clustersig = false(size(uv));
     comp_clusterpval = cell(size(uv,1),1);

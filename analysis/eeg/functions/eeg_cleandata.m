@@ -175,17 +175,17 @@ if isempty(varargin)
     comp = rmfield(comp, 'time');
     comp = rmfield(comp, 'trial');
     
+    %low-pass filter as requested (30 Hz/100 Hz)
+    cfg.lpfilter = 'yes';
+    cfg.lpfreq = lpfilt;
+    data = ft_preprocessing(cfg,data);
+    
     %rereference - will be more robust after data cleaning
     cfg            = [];
     cfg.reref      = 'yes';
     cfg.refchannel = 'all';
     cfg.implicitref = 'Cz';
-    cfg.refmethod  = 'avg';
-    
-    %low-pass filter as requested (30 Hz/100 Hz)
-    cfg.lpfilter = 'yes';
-    cfg.lpfreq = lpfilt;
-    data = ft_preprocessing(cfg,data);
+    cfg.refmethod  = 'median';
     
     %resample data
     cfg = [];

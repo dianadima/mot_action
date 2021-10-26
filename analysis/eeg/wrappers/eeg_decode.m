@@ -2,7 +2,7 @@ function [decoding_accuracy, decoding_matrix] = eeg_decode(outpath)
 % pairwise video decoding using fusionlab toolbox
 % trials are averaged within folds (k-fold CV) and randomly assigned to folds using specified number of permutations
 % plots average accuracy over subjects and pairs
-% action perception experiment
+% note: requires fl_decodesvn function; for alternatives, see my meg-mvpa repository 
 
 %outputs
 outfile = 'decoding_accuracy.mat';
@@ -30,21 +30,25 @@ for isub = 1:nsub
 
     data = load(datafile);
     
+    %get data into right format
     [datamatrix, condid] = eeg_preparerdm(data,0); %use 0 to keep all observations for decoding
 
+    %decode
     dec = fl_decodesvm(datamatrix,condid, 'method', 'pairwise','numpermutation',10, 'kfold',2);
     
+    %store results
     decoding_accuracy{isub} = dec;
     decoding_matrix(isub,:,:) = dec.d';  %#ok<*AGROW>
         
 end
 
+%save time axis
 time = data.time{1};
 
-%stats: test decoding - chance level against 0
+%stats: test decoding accuracy against chance level
 chancelevel = 50;
 m = squeeze(nanmean(decoding_matrix,2));
-m = m - chancelevel;
+m = m - chancelevel; %center around 0
 [~,obs,rand] = randomize_rho(m);
 
 %cluster correction

@@ -1,20 +1,33 @@
 function [] = eeg_plotvarpart(vp)
-% make variance partitioning figures
+% plot EEG variance partitioning results
+% Figure 1: timecourse of unique contributions + their onsets
+% Figure 2: timecourse of differences between unique contributions
+% Figure 3: timecourse of shared variance between features
+%
+% input: variance partitioning structure
 
-%%%%%%%%%%%%%%%%%% plot unique variance timecourses
+%% plot unique variance timecourses
 
-%read unique vars in plotting order (vis, act, soc)
-uv = vp.rsq_adj([7 6 5],:,:); 
+%read unique variance in plotting order (vis, soc, act)
+idx = [7 5 6];
 
-colors = {[0.2 0.6 0.8],[0.6 0.6 0.8],[0.3 0.7 0.5]};
-labels = {'Visual','Social','Action'};
+try
+    uv = vp.rsq_adj(idx,:,:); 
+catch
+    uv = vp.var_exp(idx,:,:); 
+end
+
+colors = {[0.2 0.6 0.8],[0.3 0.7 0.5],[0.6 0.6 0.8]};
+labels = {'Visual','Action','Social'};
 
 if isfield(vp,'true_rsq')
     nc = vp.true_rsq;
+elseif isfield(vp,'var_true')
+    nc = vp.var_true;
 end
 
 if ~isnan(sum(vp.stats.clustersig(:)))
-    sigmat = logical(vp.stats.clustersig([7 6 5],:));
+    sigmat = logical(vp.stats.clustersig(idx,:));
 else
     sigmat = [];
 end
@@ -29,9 +42,8 @@ if exist('nc','var')
     hasbehavior(l, 'legend', false);
 end
 
-idx = [1 3 2];
-for ii = 1:3
-    i = idx(ii);
+for i = 1:3
+
     uv_tmp = squeeze(uv(i,:,:));
     if any(size(uv_tmp)==1)
         uv_avg = uv_tmp;
@@ -63,21 +75,20 @@ set(gca,'xgrid','on')
 if isfield(vp,'onsets')
     
     xlabel(' ');
+    
     subplot(2,1,2);
-    idx = [7 5 6];
-    colors = {[0.2 0.6 0.8],[0.3 0.7 0.5],[0.6 0.6 0.8]};
-    labels = {'Visual','Action','Social'};
-    %figure
     hold on
+    
     for i = 1:3
         
         ons = vp.onsets(:,idx(i));
         onsci = prctile(ons, [5 95]);
         rectangle('Position',[onsci(1) i-0.25 onsci(2) 0.5],'FaceColor',[colors{i} 0.5],'EdgeColor','none');
         g(i,:) = ~isnan(ons);
+   
     end
     
-    h=boxplot(vp.onsets(:,idx),1:3,'Colors','k','Symbol','','Orientation','horizontal');
+    h = boxplot(vp.onsets(:,idx),1:3,'Colors','k','Symbol','','Orientation','horizontal');
     set(h,{'linew'},{2});
     
     box off
@@ -94,20 +105,22 @@ end
 
 % plot differences
 if isfield(vp.stats,'compclustersig')
-    idx = [1 2; 3 2; 1 3];
-    labels = {'Soc - Vis'; 'Soc - Act'; 'Act - Vis'};
+    
+    idx = [3 1; 3 2; 1 2];
+    labels = {'Soc - Vis'; 'Soc - Act'; 'Vis - Act'};
     colors = {[0.6 0.6 0.8],[0.7 0.7 0.95],[0.5 0.7 0.5]};
     
     dv = nan(size(uv));
     for i = 1:3
-        dv(i,:,:) = uv(idx(i,2),:,:) - uv(idx(i,1),:,:);
+        dv(i,:,:) = uv(idx(i,1),:,:) - uv(idx(i,2),:,:);
     end
     
     sigmat = logical(vp.stats.compclustersig);
     
     figure
     hold on
-    set(gca,'ylim',[-0.01 0.01])
+    set(gca,'ylim',[-0.025 0.025])
+        
     for i = 1:3
         
         dv_tmp = squeeze(dv(i,:,:));
@@ -116,24 +129,35 @@ if isfield(vp.stats,'compclustersig')
         
         sig = time(sigmat(i,:));
         
+        if i==1
+            sigy = -0.022;
+        elseif i==2
+            sigy = -0.021;
+        else
+            sigy = 0.022;
+        end
+        
         plot_time_results(dv_avg,dv_std,'time',time,'ylim',[],'chance',0,'color',colors{i},'legend',labels{i},...
-            'linewidth',2,'ylabel',[],'signif',sig,'signif_ylocation',-0.006-0.0003*i);
+            'linewidth',2,'ylabel',[],'signif',sig,'signif_ylocation',sigy);
         
     end
     
-    set(gca,'ylim',[-0.012 0.015])
     yticks([-0.01 0 0.01])
     yticklabels([-0.01 0 0.01])
-    xticks([0:0.2:0.8])
+    xticks(0:0.2:0.8)
     set(gca,'FontSize',18)
     xlabel('Time (s)')
     ylabel('Kendall''s {\tau}_A^2')
 end
 
 
-%%%%%%%%%%%%%%%%%% plot shared variance timecourses
+%% plot shared variance timecourses
 
-uv = vp.rsq_adj([1 2 3 4],:,:); %read in plotting order
+try
+    uv = vp.rsq_adj([1 2 3 4],:,:); %read in plotting order
+catch
+    uv = vp.var_exp([1 2 3 4],:,:);
+end
 
 % plot unique variance timecourses
 

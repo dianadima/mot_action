@@ -1,6 +1,12 @@
 function [rsa_results] = eeg_rsa(cfg)
 % run RSA analysis on EEG data
-% input: cfg with optional settings
+% input: cfg with optional arguments
+%       outpath: where to save results
+%       outfile: results filename
+%       modfile: file with model RDMs
+%       plotflag: plot results, 1
+% output: rsa results structure
+% DC Dima (diana.c.dima@gmail.com)
 
 % parse inputs
 try outpath = cfg.outpath; catch, outpath = pwd;cfg.outpath = outpath; end
@@ -8,7 +14,8 @@ rsapath = fullfile(outpath,'RSA'); if ~exist(rsapath,'dir'), mkdir(rsapath); end
 try modfile = cfg.modfile; catch, modfile = fullfile(rsapath,'behavior.mat'); cfg.modfile = modfile; end
 try outfile = fullfile(rsapath,cfg.outfile); catch, outfile = fullfile(rsapath, 'rsa.mat'); cfg.outfile = outfile; end
 try plotflag = cfg.plot; catch, plotflag = 1; end
-try nperm = cfg.nperm; catch, nperm = 5000; cfg.nperm = nperm; end
+
+nperm = 5000; %randomization iterations
 
 try load(modfile,'models','modelnames');
 catch
@@ -25,38 +32,28 @@ end
 if ~isfield(cfg, 'decoding_file')
     cfg.decoding_file = uigetfile('','Select file with decoding results');
 end
-load(cfg.decoding_file,'decoding_accuracy','time');
+load(cfg.decoding_file,'decoding_matrix','time');
 
 %create new time axis
 time_orig = time;
 [winmat,time,nwin] = eeg_timewindows(time_orig,numel(time_orig));
 
 %initialize variables
-nprs = size(models,1); %number of pairs
 nmod = size(models,2); %number of models
-nsub = numel(decoding_accuracy);
+nsub = size(decoding_matrix,1);
 rsacorr = nan(nsub,nwin,nmod);
-rsardm = nan(nsub,nprs,size(decoding_accuracy{1},1));
     
 %run subject-wise analysis
 for isub = 1:nsub
-   
-    if isstruct(decoding_accuracy)
-        rdm = decoding_accuracy(isub).d';
-    elseif iscell(decoding_accuracy)
-        rdm = decoding_accuracy{isub}.d';
-    else
-        rdm = squeeze(decoding_accuracy(isub,:,:))';
-    end
-
+    
+    rdm = squeeze(decoding_matrix(isub,:,:));
     [subcorr,time] = eeg_runrsa(rdm, models, time_orig, 'kendall');
     rsacorr(isub,:,:) = subcorr;
-    rsardm(isub,:,:) = rdm;
     
 end
 
 %average version
-avgrsardm = squeeze(mean(rsardm,1));
+avgrsardm = squeeze(mean(decoding_matrix,1));
 avgcorr = eeg_runrsa(avgrsardm, models, time_orig, 'kendall');
 
 %sign permutation testing
@@ -78,10 +75,10 @@ end
 nc_low = nan(nsub,nwin);
 nc_upp = nan(nsub,nwin);
 
-avg = squeeze(mean(rsardm,1));
+avg = squeeze(mean(decoding_matrix,1));
 for isub = 1:nsub
-    tmp1 = squeeze(rsardm(isub,:,:));
-    tmp2 = rsardm;
+    tmp1 = squeeze(decoding_matrix(isub,:,:));
+    tmp2 = decoding_matrix;
     tmp2(isub,:,:) = [];
     tmp2 = squeeze(mean(tmp2,1));
     for iwin = 1:nwin
@@ -94,7 +91,7 @@ end
 
 %save results
 rsa_results.subcorr = rsacorr;
-rsa_results.subrdm = rsardm;
+rsa_results.subrdm = decoding_matrix;
 rsa_results.subpval = pval;
 rsa_results.subpvalcorr = pval_corr;
 rsa_results.clustersig = clustersigt;

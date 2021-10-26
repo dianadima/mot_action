@@ -1,4 +1,5 @@
 function [p] = eeg_savepreproc(prcfile,isub,p)
+% add participant data to structure containing preprocessing parameters
 
 %save artefact rejection data across participants
 load(prcfile) %#ok<LOAD>

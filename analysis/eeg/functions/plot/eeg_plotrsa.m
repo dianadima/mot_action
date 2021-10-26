@@ -1,8 +1,12 @@
 function [] = eeg_plotrsa(res, plotpath)
-% plot RSA results over time + feature correlation onsets
+% plot EEG RSA results over time + feature correlation onsets
+% input: RSA results structure
+%        directory for saving figures (or [], will not save figures)
+% DC Dima 2021 (diana.c.dima@gmail.com)
 
-nmod = numel(res.modelnames);
+nmod = numel(res.modelnames); %number of model RDMs
 
+%get noise ceiling bounds
 ncupp = mean(res.nc.low,1)+std(res.nc.low,[],1)/sqrt(size(res.nc.low,1));
 nclow = mean(res.nc.low,1)-std(res.nc.low,[],1)/sqrt(size(res.nc.low,1));
 
@@ -16,12 +20,12 @@ for m = 1:nmod
     hasbehavior(l, 'legend', false);
     
     mcorr = squeeze(mean(res.subcorr(:,:,m),1));
-    mcerr = squeeze(std(res.subcorr(:,:,m),[],1))/sqrt(size(res.subcorr,1));
+    mcerr = squeeze(std(res.subcorr(:,:,m),[],1))/sqrt(size(res.subcorr,1)); 
     sig = res.time(logical(res.clustersig(:,m)));
 
     plot_time_results(mcorr,mcerr,'time',res.time,'chance',0,'ylim',[-0.05 0.21],'signif',sig,'signif_ylocation',-0.02,'legend',res.modelnames{m});
 
-    xticks(res.cfg.analysis_window(1):0.2:res.cfg.analysis_window(end))
+    xticks(-0.2:0.2:1)
     set(gca,'FontSize',18)
     box off
  
@@ -53,7 +57,7 @@ for i = 1:11
     ons = onsets(:,i);
     onsci = prctile(ons, [5 95]);
     rectangle('Position',[onsci(1) i-0.25 onsci(2) 0.5],'FaceColor',[colors(i,:) 0.5],'EdgeColor','none');
-    g(i,:) = ~isnan(ons); %#ok<AGROW>
+    g(i,:) = ~isnan(ons);
 end
 
 h = boxplot(onsets,1:11,'Colors','k','Symbol','','Orientation','horizontal');

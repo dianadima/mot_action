@@ -1,4 +1,6 @@
-% Action perception EEG experiment analysis %
+%% Action perception EEG experiment analysis
+% Read and preprocess EEG data; perform pairwise decoding, representational similarity analysis, and variance partitioning
+% DC Dima 2021 (diana.c.dima@gmail.com)
 
 %% set paths
 clear; clc
@@ -12,7 +14,7 @@ basepath_eeg = fullfile(basepath,'data','eeg');
 addpath(fullfile(bdir,'Scripts', 'fieldtrip-20191022/'))
 ft_defaults
 
-%pairwise decoding & plotting
+%decoding & plotting
 addpath(fullfile(bdir,'Scripts','meg-mvpa/mvpa-for-meg')); mvpa_setup
 addpath(genpath(fullfile(bdir,'Scripts','fusionlab_toolbox')))
 

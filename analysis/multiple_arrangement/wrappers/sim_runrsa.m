@@ -1,10 +1,11 @@
 function [results] = sim_runrsa(rdmfile,modfile,rsafile)
-%run RSA analysis
-%Inputs: rdmfile, file with behavioral RDM and noise ceiling
-%        modfile, file with RSA models
-%        rsafile, results file to be saved
+% Run RSA analysis
+% Inputs: rdmfile, file with behavioral RDM and noise ceiling
+%         modfile, file with RSA models
+%         rsafile, results file to be saved
+% DC Dima 2021 (diana.c.dima@gmail.com)
 
-load(rdmfile,'nc','qc');
+load(rdmfile,'nc');
 rdmvec = nc.rdmvec;
 
 %get path to save figures
@@ -99,10 +100,6 @@ results.Spearman.noise_ceiling = ncS;
 results.Kendall.noise_ceiling = ncK;
 
 save(rsafile,'-struct','results')
-
-%use training RDM to get a more conservative noise ceiling for plotting the
-%overall variance explained by models
-sim_plotvar(rsaAdRsq,qc.nc);
 
 end
 

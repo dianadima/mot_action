@@ -1,4 +1,6 @@
 function [] = plot_reliability(respath1,respath2)
+% plot reliability (leave-one-out correlations) of similarity judgments
+% inputs: path to directories containing rdm.mat files for the two experiments
 
 rpath = {respath1,respath2};
 

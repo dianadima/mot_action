@@ -1,7 +1,7 @@
 function [data] = sim_appenddata(data, datapath)
-%append additional files to the main dataset
-%these are files downloaded individually for participants who did not hit
-%'complete' at the end but did complete the main task in Meadows
+% append additional files to the main dataset
+% these are files downloaded individually for participants who did not hit
+% 'complete' at the end but did complete the main task in Meadows
 
 %find the datafile in the directory
 files = dir(datapath);

@@ -1,7 +1,9 @@
 function [] = sim_qualitycheck(rdmfile)
-%excludes participants with low reliability on training RDM
-%plots & saves reliability using different metrics
-%input: file with rdm and training data
+% excludes participants with low reliability on training RDM
+% plots & saves reliability using different metrics
+% input: file with rdm and training data
+% output: none (saves updated input file)
+% DC Dima 2020 (diana.dima@gmail.com)
 
 %load data
 load(rdmfile,'rdm','qc','full')
@@ -20,7 +22,6 @@ else
     full.qc = qc;
     full.rdm = rdm;
 end
-
 
 %first check reliability of training data - use Kendall's tau-A
 qc_nc = sim_reliability(qc.rdm, fpath, 'Training RDM before exclusions',[]);

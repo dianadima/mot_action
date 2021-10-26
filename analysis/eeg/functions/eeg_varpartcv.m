@@ -1,26 +1,30 @@
-function [varpart] = eeg_varpartcv(rdm,time,reg,model1,model2,model3,varargin)
+function [varpart] = eeg_varpartcv(rdm,time,model1,model2,model3,varargin)
 % cross-validated variance partitioning analysis over time
 % runs split-half cross-validation
 % uses Kendall's tau-A squared as prediction metric
 % 
 % inputs: rdm (Nsub x Npairs x Ntimepoints)
+%         time (time axis)
 %         model1, model2, model3: predictors (Nmodel x Npairs)
 %
 % output: varpart, structure containing
-%                rsq_adj, adjusted R-squared for each combination of models
+%                rsq_adj, explained variance for each combination of models
 %                comb_labels, order of model combinations (i.e. abc, ab, bc, ac, a, b, c)
 %                total_rsq, total variance explained by the models (adjusted R-squared)
 %                noiseceil, upper and lower bounds of noise ceiling (cf. Nili et al 2014)
+%                true_rsq, true squared correlation between training & test sets
+%                split_idx, cross-validation indices
 %
 % DC Dima 2021 (diana.c.dima@gmail.com)
 
-nsub = size(rdm,1);
-sz = floor(nsub/2);
-nit = 100;
+nsub = size(rdm,1); %number of participants
+sz = floor(nsub/2); %get half
+nit = 100;          %number of iterations
 
 % get sliding time windows
 [winmat,time,nwin] = eeg_timewindows(time,size(rdm,3));
 
+% save random indices
 split_idx = nan(nit,sz);
 
 %combine predictors for hierarchical regression
@@ -30,7 +34,9 @@ if ~isempty(model3) && (isempty(varargin) || isempty(varargin{1}))
     comb{2} = [model1 model2];
     comb{3} = [model2 model3];
     comb{4} = [model1 model3];
-    comb{5} = model1; comb{6} = model2; comb{7} = model3;
+    comb{5} = model1; 
+    comb{6} = model2; 
+    comb{7} = model3;
     
     comb_labels = {'abc','ab','bc','ac','a','b','c'};
     
@@ -62,7 +68,6 @@ elseif ~isempty(model3) && ~isempty(varargin) && ~isempty(varargin{1})
 end
 
 ncomb = numel(comb);
-%loop
 rsq_mat = nan(ncomb,nit,nwin);
 truecorrsq = nan(nit,nwin);
 
@@ -72,6 +77,7 @@ parfor it = 1:nit
     idx = randperm(nsub,sz);
     split_idx(it,:) = idx;
     
+    %split rdm
     rdm2 = squeeze(nanmean(rdm(idx,:,:),1));
     rdm1 = rdm;
     rdm1(idx,:,:) = [];
@@ -82,22 +88,14 @@ parfor it = 1:nit
         widx = winmat(:,iw);
         r1 = mean(rdm1(:,widx),2);
         r2 = mean(rdm2(:,widx),2);
-        % r1 = rdm1(:,iw);
-        % r2 = rdm2(:,iw);
         
         truecorrsq(it,iw) = (rankCorr_Kendall_taua(r1,r2))^2; %true correlation
         
         for icomb = 1:ncomb
             
             pred = comb{icomb};
-            
-            if ~reg
-                lm = fitlm(pred,r1);
-            else
-                lm = fitrlinear(pred,r1);
-            end
-            rpred = predict(lm,pred); %get predicted responses
-            
+            lm = fitlm(pred,r1);
+            rpred = predict(lm,pred); %get predicted responses 
             rsq_mat(icomb,it,iw) = (rankCorr_Kendall_taua(rpred,r2))^2; %save t-a squared
     
         end
@@ -105,6 +103,7 @@ parfor it = 1:nit
     end
 end
 
+% 3 models
 if ~isempty(model3) && (isempty(varargin) || isempty(varargin{1}))
     %unique variance
     a = rsq_mat(1,:,:) - rsq_mat(3,:,:);
@@ -119,8 +118,9 @@ if ~isempty(model3) && (isempty(varargin) || isempty(varargin{1}))
     %shared variance (abc)
     abc = rsq_mat(1,:,:) - (a+b+c) - (ab+ac+bc);
     
-    var_mat = cat(1,abc,ab,bc,ac,a,b,c); %7
-    
+    var_mat = cat(1,abc,ab,bc,ac,a,b,c); 
+
+% 4 models
 elseif ~isempty(model3) && ~isempty(varargin) && ~isempty(varargin{1})
     
     %unique variance
@@ -158,10 +158,6 @@ end
     varpart.true_rsq = truecorrsq;
     varpart.time = time;
     varpart.split_idx = split_idx;
-
-    if reg
-        varpart.regularize = 'ridge';
-    end
 
 end
 

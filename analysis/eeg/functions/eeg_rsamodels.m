@@ -1,5 +1,7 @@
 function [models, modelnames] = eeg_rsamodels(videofile, modfile)
 % create model RDMs for EEG RSA/variance partitioning analysis
+% note: for the final analysis, Conv1 and Behavior were added to the
+% original 10 models from the behavioral experiments
 
 %extract or load frames here
 v = load(videofile);
@@ -16,42 +18,13 @@ else
 end
 
 %% initialize
-nmod = 14;                  %number of models
+nmod = 11;                  %number of models
 nvid = length(v.videolist); %number of videos
 
 models = nan((nvid*(nvid-1))/2,nmod);
 modelnames = cell(1,nmod);
-%m = 1; %model counter - for easy editing
 
-%% low-level properties (HSV)
-
-framesize = [size(allframes{1},1), size(allframes{1},2)];
-HSV = nan(nvid,3,prod(framesize));
-labels = {'Pixel Value','Hue','Saturation'};
-
-%average properties across all frames
-for i = 1:nvid
-    
-    vid = allframes{i};
-    HSVtemp = nan(size(vid,4),3,prod(framesize));
-    for ii = 1:size(vid,4)
-        frame = squeeze(vid(:,:,:,ii));
-        hsvmap = rgb2hsv(frame);
-        hsvmap = permute(hsvmap,[3 1 2]);
-        HSVtemp(ii,:,:) = hsvmap(:,:);
-    end
-    HSV(i,:,:) = nanmean(HSVtemp,1);
-end
-
-
-for m = 1:3
-    models(:,m) = pdist(squeeze(HSV(:,m,:)));
-    modelnames{m} = labels{m};
-    fprintf('Created %s model...\n', modelnames{m})
-end
-
-%model counter
-m = m+1;
+m = 1;
 
 %% environment
 models(:,m) = pdist(v.env(:));
@@ -94,8 +67,7 @@ for mr = 1:3
     modelnames{mr+m} = v.rating_types{mr};
 end
 
-
-%% action & transitivity
+%% activity & transitivity
 m = m+mr+1;
 ratings = squeeze(nanmean(v.ratingsZ(mr+1,:,:),3))';
 models(:,m) = pdist(ratings);

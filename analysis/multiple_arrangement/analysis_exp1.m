@@ -1,5 +1,5 @@
 %% analysis pipeline for Meadows behavioural similarity data: Experiment 1
-% DC Dima 2020 (diana.c.dima@gmai.com)
+% DC Dima 2020 (diana.c.dima@gmail.com)
 
 %%
 clear; clc; close all

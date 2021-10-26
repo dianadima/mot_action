@@ -1,11 +1,11 @@
 function [bigrdm] = sim_assignrdm(data, stimlist)
-%place individual subjects' data into the full stimulus set RDM
-%input: data (struct) and stimlist (cell array of all stimulus names)
+% place individual subjects' data into the full stimulus set RDM
+% input: data (struct) and stimlist (cell array of all stimulus names, in order)
 
 rdm = data.rdm;
 stim = {data.stimuli(:).name};
 
-rdm = (rdm - min(rdm))./(max(rdm)-min(rdm));
+rdm = (rdm - min(rdm))./(max(rdm)-min(rdm)); %normalize
 rdm = squareform(rdm);
 
 nstim = numel(stimlist);
