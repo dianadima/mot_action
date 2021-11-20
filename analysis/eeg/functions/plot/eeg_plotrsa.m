@@ -29,17 +29,12 @@ for m = 1:nmod
     set(gca,'FontSize',18)
     box off
  
-    if strcmp(res.cfg.type,'spearman')
-        ylabel('Spearman''s {\rho}')
-    else
-        ylabel('Kendall''s {\tau}_A')
-    end
-
+    ylabel('Kendall''s {\tau}_A')
     set(gca,'xgrid','on')
     
     if ~isempty(plotpath)
-        print(gcf,'-dpng','-r300',fullfile(plotpath,sprintf('rsa_%s_%s_%s',res.modelnames{m},res.cfg.method,res.cfg.type)));
-        print(gcf,'-dtiff','-r300',fullfile(plotpath,sprintf('rsa_%s_%s_%s',res.modelnames{m},res.cfg.method,res.cfg.type)));
+        print(gcf,'-dpng','-r300',fullfile(plotpath,sprintf('rsa_%s',res.modelnames{m})));
+        print(gcf,'-dtiff','-r300',fullfile(plotpath,sprintf('rsa_%s',res.modelnames{m})));
     end
 end
 

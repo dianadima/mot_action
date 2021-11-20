@@ -11,7 +11,7 @@ function [rsa_results] = eeg_rsa(cfg)
 % parse inputs
 try outpath = cfg.outpath; catch, outpath = pwd;cfg.outpath = outpath; end
 rsapath = fullfile(outpath,'RSA'); if ~exist(rsapath,'dir'), mkdir(rsapath); end
-try modfile = cfg.modfile; catch, modfile = fullfile(rsapath,'behavior.mat'); cfg.modfile = modfile; end
+try modfile = cfg.modfile; catch, modfile = fullfile(rsapath,'models.mat'); cfg.modfile = modfile; end
 try outfile = fullfile(rsapath,cfg.outfile); catch, outfile = fullfile(rsapath, 'rsa.mat'); cfg.outfile = outfile; end
 try plotflag = cfg.plot; catch, plotflag = 1; end
 
@@ -104,6 +104,8 @@ rsa_results.nc.upp = nc_upp;
 rsa_results.nc.low = nc_low;
 rsa_results.cfg = cfg;
 
+save(outfile,'-struct','rsa_results')
+
 rsa_results = eeg_rsaonsets(rsa_results);
 
 save(outfile,'-struct','rsa_results')
@@ -111,7 +113,7 @@ save(outfile,'-struct','rsa_results')
 %plot if requested
 if plotflag
     
-    plotpath = fullfile(rsapath,'Figures');
+    plotpath = fullfile(rsapath,'Figures_NMF');
     if ~exist(plotpath,'dir'), mkdir(plotpath); end
     
     eeg_plotrsa(rsa_results, plotpath)

@@ -5,6 +5,7 @@ function [rsa_results] = eeg_rsaonsets(rsa_results)
 
 rng(10)
 rsacorr = rsa_results.subcorr;
+time = rsa_results.time;
 
 nboot = 1000;
 nsub = size(rsacorr,1);
